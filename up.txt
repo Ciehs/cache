@@ -1,0 +1,40 @@
+import os
+import shutil
+
+# 定义路径
+base_path = 'a/b/run/'
+original_file = os.path.join(base_path, 'A.sh')
+
+# 重命名
+a1_file = os.path.join(base_path, 'TEC.sh')
+os.rename(original_file, a1_file)
+
+# 定义文件名和替换内容的映射
+files = {
+    'B1.sh': 'B TRUN',
+    'C1.sh': 'C 1-2',
+    'D1.sh': 'D 1-4',
+    'E1.sh': 'E 1-8'
+}
+
+# A1.sh 替换内容为 A T
+with open(a1_file, 'r') as f:
+    content = f.read()
+content = content.replace('a a-a', 'TEC')
+with open(a1_file, 'w') as f:
+    f.write(content)
+
+# 创建并修改其他文件
+for filename, replacement in files.items():
+    new_file = os.path.join(base_path, filename)
+    shutil.copy(a1_file, new_file)  # 复制 A1.sh
+    with open(new_file, 'r') as f:
+        new_content = f.read()
+    new_content = new_content.replace('TEC', replacement)
+    with open(new_file, 'w') as f:
+        f.write(new_content)
+
+# 删除多余文件，确保目录中只有目标文件
+for file in os.listdir(base_path):
+    if file not in ['TEC.sh'] + list(files.keys()):
+        os.remove(os.path.join(base_path, file))
